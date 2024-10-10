@@ -1,4 +1,3 @@
 # Seminarska_UVP
 
-Filip Erznožnik ;) 
-hoho
+Filip Erznožnik ;)
