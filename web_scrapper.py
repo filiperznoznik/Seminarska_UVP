@@ -28,7 +28,7 @@ def shrani_stran(url, mapa, ime_datoteke):
     niz_v_datoteko(html_besedilo, mapa, ime_datoteke)
 
 #iterira po podstraneh, pobere html in naredi mapo tekstovnih datotek 'podatki'
-#pomozna funkcija za pridobitev vseh html-jev da lahko napisem regularne izraze
+#pomozna funkcija da vidim ce sploh dela
 def pobiranje_html():
     for stevilka_podstrani in range(1,1001):
         url = f"https://www.besteveralbums.com/overall.php?o=&f=&fv=&orderby=-InfoRankScore&sortdir=asc&page={stevilka_podstrani}"
@@ -46,30 +46,31 @@ def preberi_datoteko_v_string(mapa, ime_datoteke):
 
 #poisce vse albume (10 na stran) na podstrani    
 def poisci_albume(spletna_podstran):
-    vzorec = r'<source type="image/w.*?(<div class="chartstring chart-rank-note-col">)'
+    vzorec = r'<source type="image/w(\n|.*?)<div class="chartstring chart-rank-note-col">'
     return re.findall(vzorec, spletna_podstran, flags=re.DOTALL)
 
 #naredi slovar za posamezen album
-def naredi_slovar_iz_albuma(album):
-    vzorec_izvajalec = r'title="Click to see further details regarding this artist">(.*?)</a>'
-    vzorec_naslov = r'title="Click to see further details regarding this album.">(.*?)</a>'
-    vzorec_letnica = r'Year of Release:</div><div class="chart-stats-metric">(\d{4})'
-    vzorec_rank = r'(\d{1,5})</a></div><div  class="chartstring">'
-    vzorec_rank_score = r'Rank Score:</div><div class="chart-stats-metric">(\d{1,5})'
-    vzorec_rating = r'title="Click to see the ratings for this album.">(\d{1,3}\.\d{1,2})'
+def extract_with_default(pattern, text, default="Unknown"):
+    match = re.search(pattern, text, flags=re.DOTALL)
+    return match.group(1) if match else default
 
-    izvajalec = re.search(vzorec_izvajalec, album).group(1)
-    naslov = re.search(vzorec_naslov, album).group(1)
-    letnica = re.search(vzorec_letnica, album).group(1)
-    rank = re.search(vzorec_rank, album).group(1)
-    rank_score = re.search(vzorec_rank_score, album).group(1)
-    rating = re.search(vzorec_rating, album).group(1)
-    return {"izvajalec": izvajalec,
-            "naslov": naslov,
-            "letnica": letnica,
-            "rank": rank,
-            "rank_score": rank_score,
-            "rating": rating}
+def naredi_slovar_iz_albuma(album):
+    vzorec_izvajalec = r'regarding this artist">(.*?)<'
+    vzorec_naslov = r'regarding this album.">(.*?)<'
+    vzorec_letnica = r'metric">(\d{4})'
+    vzorec_rank = r'overall.php.rank=(\d{1,5})'
+    vzorec_rank_score = r'Rank Score:<(.*?)metric">(\d{1,5})'
+    vzorec_rating = r'>(\d{1,3}) '
+
+    return {
+        "izvajalec": extract_with_default(vzorec_izvajalec, album),
+        "naslov": extract_with_default(vzorec_naslov, album),
+        "letnica": extract_with_default(vzorec_letnica, album),
+        "rank": extract_with_default(vzorec_rank, album),
+        "rank_score": extract_with_default(vzorec_rank_score, album, default="0"),
+        "rating": extract_with_default(vzorec_rating, album, default="0")
+    }
+
 
 #zdruzi prejsnje tri funkcije in naredi seznam vseh albumov (oz. njihovih slovarjev)
 def albumi_iz_datoteke(ime_datoteke, mapa):
@@ -77,10 +78,7 @@ def albumi_iz_datoteke(ime_datoteke, mapa):
     albumi = poisci_albume(vsebina)
     sez_slovarjev = []
     for i,album in enumerate(albumi):
-        try:
             sez_slovarjev.append(naredi_slovar_iz_albuma(album))
-        except AttributeError:
-            print(f"tezava z oglasom {i}")
     return sez_slovarjev
 
 #naredi csv datoteko
@@ -96,8 +94,6 @@ def napisi_csv(stolpci, vrstice, mapa, ime_datoteke):
 
 #naredi csv datoteko iz podatkov o albumih
 def celoten_csv(albumi, mapa, ime_datoteke):
-    assert albumi and (all(slo.keys() == albumi[0].keys() for slo in albumi))
+    if not albumi or not all(slo.keys() == albumi[0].keys() for slo in albumi):
+        raise ValueError("Nekaj je narobe s slovarji")
     napisi_csv(albumi[0].keys(), albumi, mapa, ime_datoteke)
-
-
-  #SPREMNI IMENA FUNKCIJ IN SPREMENLJIVK TER DODAJ KOMENATRJE!!!!!!!!!!!!!
