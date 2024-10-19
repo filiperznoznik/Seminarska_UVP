@@ -46,8 +46,13 @@ def preberi_datoteko_v_string(mapa, ime_datoteke):
 
 #poisce vse albume (10 na stran) na podstrani    
 def poisci_albume(spletna_podstran):
-    vzorec = r'<source type="image/w(\n|.*?)<div class="chartstring chart-rank-note-col">'
+    vzorec = r'Year of.+?--'
     return re.findall(vzorec, spletna_podstran, flags=re.DOTALL)
+
+def poisci_albume2(spletna_podstran):
+    vzorec = r'Click to see further details regarding this album.">.*?</a></div>'
+    return re.findall(vzorec,spletna_podstran, flags=re.DOTALL)
+
 
 #naredi slovar za posamezen album
 def extract_with_default(pattern, text, default="Unknown"):
@@ -59,7 +64,7 @@ def naredi_slovar_iz_albuma(album):
     vzorec_naslov = r'regarding this album.">(.*?)<'
     vzorec_letnica = r'metric">(\d{4})'
     vzorec_rank = r'overall.php.rank=(\d{1,5})'
-    vzorec_rank_score = r'Rank Score:<(.*?)metric">(\d{1,5})'
+    vzorec_rank_score = r'Rank Score:<.*?metric">(\d{1,5})'
     vzorec_rating = r'>(\d{1,3}) '
 
     return {
