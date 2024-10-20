@@ -46,17 +46,16 @@ def preberi_datoteko_v_string(mapa, ime_datoteke):
 
 #poisce vse albume (10 na stran) na podstrani    
 def poisci_albume(spletna_podstran):
-    vzorec = r'Year of.+?--'
-    return re.findall(vzorec, spletna_podstran, flags=re.DOTALL)
-
-def poisci_albume2(spletna_podstran):
-    vzorec = r'Click to see further details regarding this album.">.*?</a></div>'
-    return re.findall(vzorec,spletna_podstran, flags=re.DOTALL)
-
+    vzorec1 = r'Year of.+?--'
+    vzorec2 = r'Click to see further details regarding this album.">.*?</a></div>'
+    seznam1 = re.findall(vzorec1, spletna_podstran, flags=re.DOTALL)
+    seznam2 = re.findall(vzorec2, spletna_podstran, flags=re.DOTALL)
+    zdruzen_seznam = [a + b for a, b in zip(seznam1, seznam2)]
+    return zdruzen_seznam
 
 #naredi slovar za posamezen album
-def extract_with_default(pattern, text, default="Unknown"):
-    match = re.search(pattern, text, flags=re.DOTALL)
+def grupiranje(vzorec, datoteka, default="Unknown"):
+    match = re.search(vzorec, datoteka, flags=re.DOTALL)
     return match.group(1) if match else default
 
 def naredi_slovar_iz_albuma(album):
@@ -64,16 +63,16 @@ def naredi_slovar_iz_albuma(album):
     vzorec_naslov = r'regarding this album.">(.*?)<'
     vzorec_letnica = r'metric">(\d{4})'
     vzorec_rank = r'overall.php.rank=(\d{1,5})'
-    vzorec_rank_score = r'Rank Score:<.*?metric">(\d{1,5})'
+    vzorec_rank_score = r'Rank Score:<.*?metric">(\d+,\d+)'
     vzorec_rating = r'>(\d{1,3}) '
 
     return {
-        "izvajalec": extract_with_default(vzorec_izvajalec, album),
-        "naslov": extract_with_default(vzorec_naslov, album),
-        "letnica": extract_with_default(vzorec_letnica, album),
-        "rank": extract_with_default(vzorec_rank, album),
-        "rank_score": extract_with_default(vzorec_rank_score, album, default="0"),
-        "rating": extract_with_default(vzorec_rating, album, default="0")
+        "izvajalec": grupiranje(vzorec_izvajalec, album),
+        "naslov": grupiranje(vzorec_naslov, album),
+        "letnica": grupiranje(vzorec_letnica, album, default="0"),
+        "rank": grupiranje(vzorec_rank, album, default="0"),
+        "rank_score": grupiranje(vzorec_rank_score, album, default="0").replace(",",""),
+        "rating": grupiranje(vzorec_rating, album, default="0")
     }
 
 
