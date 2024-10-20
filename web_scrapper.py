@@ -53,11 +53,12 @@ def poisci_albume(spletna_podstran):
     zdruzen_seznam = [a + b for a, b in zip(seznam1, seznam2)]
     return zdruzen_seznam
 
-#naredi slovar za posamezen album
+#pogleda, če je vse ok do tukaj
 def grupiranje(vzorec, datoteka, default="Unknown"):
     match = re.search(vzorec, datoteka, flags=re.DOTALL)
     return match.group(1) if match else default
 
+#naredi slovar za posamezen album
 def naredi_slovar_iz_albuma(album):
     vzorec_izvajalec = r'regarding this artist">(.*?)<'
     vzorec_naslov = r'regarding this album.">(.*?)<'

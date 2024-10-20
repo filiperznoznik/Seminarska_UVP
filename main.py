@@ -5,7 +5,7 @@ def main():
     podatki1 ='podatki1' 
     sez_slovarjev = []
     for stevilka_podstrani in range(1,1001):
-        time.sleep(0.1)
+        time.sleep(1)
         html_dat = f"podstran_{stevilka_podstrani}"
         url = f"https://www.besteveralbums.com/overall.php?o=&f=&fv=&orderby=-InfoRankScore&sortdir=asc&page={stevilka_podstrani}"
         shrani_stran(url, podatki1, html_dat)
