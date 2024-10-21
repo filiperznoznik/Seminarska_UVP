@@ -65,7 +65,7 @@ def naredi_slovar_iz_albuma(album):
     vzorec_letnica = r'metric">(\d{4})'
     vzorec_rank = r'overall.php.rank=(\d{1,5})'
     vzorec_rank_score = r'Rank Score:<.*?metric">(\d+,?\d+)'
-    vzorec_rating = r'>(\d{1,3}) '
+    vzorec_rating = r'>(\d{1,3}) \('
 
     return {
         "izvajalec": grupiranje(vzorec_izvajalec, album),
